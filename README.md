@@ -24,8 +24,12 @@ This is a basic package to clean up text data and to do basic analysis. This wor
 
 Given a String `t` we can get a cleaned version by running the following lines of code
 
-`t = removeNumbers(t)`
+`t = removeNumbers(t)` 
+
 `t = removerPunctuation(t)`
+
 `t = replaceWhitespace(t)`
+
 `t = condenseWhitespace(t) `
+
 `t = keepChars(t,c)`
