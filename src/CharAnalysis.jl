@@ -80,4 +80,69 @@ function condenseWhitespace(t)
     return newT[s:e]
 end
 
+function absoluteDiscount(mu,delta)
+    k = length(mu)
+    n = Int(sum(mu))
+    D = sum(mu .> 0.0)
+
+    for i = 1:k
+        if mu[i] == 0.0
+            mu[i] = (D*delta)/(n*(k-D))
+        else
+            mu[i] = (mu[i]-delta)/n
+        end
+    end
+    
+    return mu
+end
+
+
+
+
+function ngramTransMatrix(text,alphabet,N; maxdelta = 0.9)
+    k = length(alphabet)
+    Ngram = ngram(text,N)
+    Nm1gram = ngram(text,N-1)
+    
+    println("Grams created")
+    
+    ind2gram = [key for key in keys(Nm1gram)]
+    
+    n = length(ind2gram)
+    
+    M = zeros(n, k)
+    println("Creating M")
+    for i = 1:n
+        prefix = ind2gram[i]
+        for j = 1:k
+            nextLetter = alphabet[j]
+            key = prefix*nextLetter
+            if haskey(Ngram,key)
+                M[i,j] = Ngram[key]
+            end
+        end
+        phi = sum(M[i,:] .== 1.0)
+        D = sum(M[i,:] .> 0.0)
+        
+        if D == 0
+            M[i,:] = ones(k)/k
+        else
+            delta = min(max(phi,1)/D, maxdelta)
+            M[i,:] = absoluteDiscount(M[i,:],delta)
+        end
+    end
+    
+    return M,Nm1gram,ind2gram
+end
+
+function gramToInd(ind2gram)
+    gram2ind = Dict{String, Integer}()
+    for i = 1:length(ind2gram)
+        gram2ind[ind2gram[i]] = i
+    end
+    
+    return gram2ind
+end
+
+
 end
